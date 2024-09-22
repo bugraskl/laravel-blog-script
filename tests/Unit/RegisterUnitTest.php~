@@ -1,0 +1,54 @@
+<?php
+
+namespace Tests\Unit;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class RegisterUnitTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /**
+     * Test a subscriber can be created.
+     *
+     * @return void
+     */
+    public function test_user_can_be_created()
+    {
+        $userData = [
+            'email' => 'johndoe@example.com',
+            'password' => bcrypt('password'),
+            'name' => 'John Doe',
+        ];
+
+        $user = User::create($userData);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'johndoe@example.com',
+            'name' => 'John Doe',
+        ]);
+
+        $this->assertEquals('johndoe@example.com', $user->email);
+        $this->assertTrue(!!$user->id);
+        $this->assertTrue(!!$user->password);
+        $this->assertEquals('John Doe', $user->name);
+    }
+
+    /**
+     * Test a subscriber cannot be created with invalid data.
+     *
+     * @return void
+     */
+    public function test_subscriber_creation_fails_with_invalid_email()
+    {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+
+        User::create([
+            'email' => 'not-an-email',
+            'password' => bcrypt('password'),
+            'name' => 'John Doe',
+        ]);
+    }
+}
